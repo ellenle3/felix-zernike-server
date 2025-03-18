@@ -2,7 +2,7 @@ import argparse
 import warnings
 import numpy as np
 from astropy.io import fits
-from zernike import zernike_derv, make_gamma_matrices
+from zernike import zernike_derv, make_gamma_matrices, noll_zernike_index
 from config import *
 
 class ZernikeReconstructor:
@@ -24,20 +24,23 @@ class ZernikeReconstructor:
 
     @classmethod
     def make_norm_coeffs(cls):
-        """Creates normalization coefficients for Noll Zernike polynomials.
+        """Creates normalization coefficients for Noll Zernike polynomials without
+        piston.
         """
-        norm = np.ones(cls.n_modes + 1)
+        norm = np.ones(cls.n_modes)
         norm *= cls.scale
-        # flip and rotation not implemented yet...
+
+        # Flip sign of all indices with negative azimuthal frequency
+        for k in range(N_MODES):
+            m, n = noll_zernike_index(k + 2)
+            if m < 0:
+                norm[k] *= cls.flip
+
         return norm
 
     @classmethod
     def make_imat(cls, norm):
         """Creates Zernike to slopes matrix without piston.
-
-        Parameters
-        ----------
-
         """
         A = np.zeros((2*cls.n_spots, cls.n_modes))
         # Apply rotation by rotating the spot positions - I think this is wrong...
@@ -54,8 +57,8 @@ class ZernikeReconstructor:
                 A[i+cls.n_spots,k] = norm[k] * dervy[i]
         return A
     
-    @classmethod
-    def invert_imat(cls, A):
+    @staticmethod
+    def invert_imat( A):
         """Creates slopes to Zernike matrix from imat.
         """
         A_inv = np.linalg.pinv(A)
@@ -87,22 +90,6 @@ class ZernikeReconstructor:
         self.norm = self.make_norm_coeffs()
         self.A = self.make_imat(self.norm)
         self.z2s = self.invert_imat(self.A)
-
-    def points_to_slopes(self, points):
-        """Converts x, y points to slopes.
-
-        Parameters
-        ----------
-        points: nd_array of shape (2, n_spots + 1)
-            The x, y coordinates of the spots. The first element should be the
-            coordinates of the center point.
-        
-        Returns
-        -------
-        out: nd_array of shape (2, n_spots)
-        """
-        pass
-
 
     def update_slopes(self, timestamp, X_values, Y_values):
         """Updates slope data.
