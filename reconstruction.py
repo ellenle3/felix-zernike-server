@@ -40,10 +40,11 @@ class ZernikeReconstructor:
 
         """
         A = np.zeros((2*cls.n_spots, cls.n_modes))
-        # Apply rotation by rotating the spot positions
-        rot_matrix = np.array([ [np.cos(cls.rot), -np.sin(cls.rot)],
-                                [np.sin(cls.rot),  np.cos(cls.rot)] ])
-        points = np.dot(rot_matrix, cls.spot_positions.T).T
+        # Apply rotation by rotating the spot positions - I think this is wrong...
+        #rot_matrix = np.array([ [np.cos(cls.rot), -np.sin(cls.rot)],
+        #                        [np.sin(cls.rot),  np.cos(cls.rot)] ])
+        #points = np.dot(rot_matrix, cls.spot_positions.T).T
+        points = cls.spot_positions
 
         for k in range(cls.n_modes):
             # Noll index would usually be k + 1... Skip piston, so k + 2.
@@ -59,27 +60,6 @@ class ZernikeReconstructor:
         """
         A_inv = np.linalg.pinv(A)
         return A_inv
-
-    @classmethod
-    def estimate_wavefront(cls, slopes):
-        """Reconstructs the wavefront from the slope measurements.
-
-        References: Southwell (1980) and Herrmann (1979)
-
-        Parameters
-        ----------
-        slopes: nd_array of size 2*n_spots
-            The slope measurements in the x and y directions. x values first,
-            then y values.
-
-        Returns
-        ------
-        a_z: nd_array of size n_zernike
-            Zernike coefficients.
-        """
-        a_z = np.zeros(cls.n_modes)
-
-        pass
 
     def __init__(self):
         """Initializes the Slopes class.

@@ -5,7 +5,7 @@ Client will send two sets of five points, as:
     x1,y1,x2,y2,...,x5,y5,...,x10,y10
 
     x1,y1 is the centerpoint of the calibration data, x2,y2 - x5,y5 are the points for the calibration data.
-    x5,y5 is the centerpoint of the calibration data, x6,y6 - x10,y10 are the points for the calibration data.
+    x5,y5 is the centerpoint of the calibration data, x6,y6 - x10,y10 are the points for the input data.
 
 
 
@@ -26,7 +26,8 @@ Run the script:
 
     python felix_zernikes.py
 
-You can configure the number of Zernike modes and slope sampling points in config.py
+You can configure the number of Zernike modes and slope sampling points in config.py.
+Slopes are measured with respect to calibration spots.
 
 FELIX data server and client written by Charles Lockhart. Conversion of FELIX spot
 positions to Zernike coefficients written by Ellen Lee.

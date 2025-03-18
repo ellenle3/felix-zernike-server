@@ -1,7 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.special import factorial
-from astropy.io import fits
 
 
 def poly_radial(m, n, rho):
