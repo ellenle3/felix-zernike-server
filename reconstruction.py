@@ -8,7 +8,7 @@ from config import *
 class ZernikeReconstructor:
     """Modal wavefront reconstruction for a Shack-Hartmann wavefront sensor with
     a Zernike basis. The solution is based on Southwell (1980) with the geometry
-    in Fig. 1C (can also be used for Fig. 1A).
+    in Fig. 1A.
     """
     n_spots = N_SPOTS     # Number of spots not including the center spot
     n_modes = N_MODES     # Number of Zernike polynomials not including piston
@@ -65,23 +65,8 @@ class ZernikeReconstructor:
         return A_inv
 
     def __init__(self):
-        """Initializes the Slopes class.
-
-        Parameters
-        ----------
-        n_zernike : int, optional
-            Number of Noll Zernike polynomials excluding piston. E.g., n_zernike = 5
-            yields tip, tilt, focus, astig1, astig2.
-        rot: float, optional
-            Rotation angle in degrees. Default is 0.
-        scale: float, optional
-            Scale factor. Default is 1.
-        flip: int, optional
-            If 1, no flip. If -1, flips the Zernike coefficients. Default is 1.
-
-        Returns
-        -------
-        None
+        """Initializes the ZernikeReconstructor object. Define FELIX parameters
+        in config.py.
         """
         self.recent_timestamp = None
         self.slopes = None
@@ -126,17 +111,31 @@ class ZernikeReconstructor:
         
         return np.dot(self.z2s, self.slopes)
     
+def make_southwell_points(Npts):
+    """Creates an array of points that sample the pupil evenly according to the
+    sampling geometry shown in Southwell (1980) Fig 1A. Radius of pupil is 1.
+
+    Parameters
+    ----------
+    Npts: int
+        Number of points to sample along one direction.
+    
+    Returns
+    -------
+    out: np.ndarray
+        Array of points in the Southwell geometry for a SHWFS.
+    """
+    subap_size = 2 / Npts
+    xpts = np.arange(-1 + subap_size/2, 1, subap_size)
+    ypts = np.arange(-1 + subap_size/2, 1, subap_size)
+    x, y = np.meshgrid(xpts, ypts, indexing="ij")
+    return np.column_stack([x.ravel(), y.ravel()])
+
 def main(Npts, Nmodes):
     """Saves a FITS file with the x and y slopes for each Zernike mode.
     """
     gammax, gammay = make_gamma_matrices(Nmodes)
-
-    # Points to sample    
-    subap_size = 2 / Npts
-    xpts = np.arange(-1 + subap_size/2, 1, subap_size)
-    ypts = np.arange(-1 + subap_size/2, 1, subap_size)
-    X, Y = np.meshgrid(xpts, ypts, indexing="ij")
-    points = np.column_stack([X.ravel(), Y.ravel()])
+    points = make_southwell_points(Npts)
 
     # Compute derivatives for each subaperture
     slopesx = np.zeros((Nmodes, Npts, Npts))

@@ -56,6 +56,7 @@ def main(protocol, port):
 
         recon.update_slopes(timestamp, X_values, Y_values)
         a_z = recon.slopes_to_zernikes()
+        
         print(f"Zernikes at {recon.recent_timestamp}:")
         for i, coeff in enumerate(a_z):
             prefix = f"  J = {i + 2}: "
