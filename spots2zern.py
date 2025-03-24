@@ -21,7 +21,7 @@ def print_coeffs(a_z):
 def print_return_code(n):
     """Prints return code with an error message if it is not 0.
     """
-    msg = f"CODE {n}: "
+    msg = f"RC {n} "
     match n:
         case 0:
             print(msg + "success")
