@@ -21,20 +21,20 @@ def print_coeffs(a_z):
 def print_return_code(n):
     """Prints return code with an error message if it is not 0.
     """
-    msg = f"RC {n} "
+    print(f"RC {n}")
     match n:
         case 0:
-            print(msg + "success")
+            print("MSG success")
         case 1:
-            print(msg + "no input provided")
+            print("MSG no input provided")
         case 2:
-            print(msg + "input does not contain 8 elements")
+            print("MSG input does not contain 8 elements")
         case 3:
-            print(msg + "input points do not match N_SPOTS")
+            print("MSG input points do not match N_SPOTS")
         case 4:
-            print(msg + "computed zernikes are NaN")
+            print("MSG computed zernikes are NaN")
         case _:
-            print(msg + "undefined error")
+            print("MSG undefined error")
 
 def main(coords):
 
