@@ -1,7 +1,3 @@
-# Server setup
-HOST = '0.0.0.0'     # Listen on all available interfaces
-DEFAULT_PORT = 8000  # Port number
-
 # Wavefront reconstruction parameters
 N_SPOTS = 4         # Number of spots not including the center spot
 N_MODES = 5         # Number of Zernike polynomials not including piston
@@ -20,3 +16,7 @@ SPOT_POSITIONS = [
     [-0.5, 0.5],
     [-0.5, -0.5]
     ]
+
+# Server setup
+HOST = '0.0.0.0'     # Listen on all available interfaces
+DEFAULT_PORT = 8000  # Port number
