@@ -56,7 +56,7 @@ def main(coords):
     if np.isnan(a_z.sum()):
         print_return_code(4)  # one of the coeffs is nan
         print_coeffs(a_z)
-        return
+        exit()
     
     # Print Zernike coefficients
     print_return_code(0)
