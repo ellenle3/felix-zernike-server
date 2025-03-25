@@ -67,11 +67,13 @@ if __name__ == "__main__":
 
     if args.coords is None:
         print_return_code(1)  # no input
+        print_coeffs(np.zeros(N_MODES))
         exit()
 
     coords = np.array(args.coords)
     if len(coords) != 8:
         print_return_code(2)  # input does not contain 8 elements
+        print_coeffs(np.zeros(N_MODES))
         exit()
 
     main(coords)
