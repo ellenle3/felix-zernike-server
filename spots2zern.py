@@ -22,19 +22,17 @@ def print_return_code(n):
     """Prints return code with an error message if it is not 0.
     """
     print(f"RC {n}")
-    match n:
-        case 0:
-            print("MSG success")
-        case 1:
-            print("MSG no input provided")
-        case 2:
-            print("MSG input does not contain 8 elements")
-        case 3:
-            print("MSG input points do not match N_SPOTS")
-        case 4:
-            print("MSG computed zernikes are NaN")
-        case _:
-            print("MSG undefined error")
+    messages = {
+        0: "MSG success",
+        1: "MSG no input provided",
+        2: "MSG input does not contain 8 elements",
+        3: "MSG input points do not match N_SPOTS",
+        4: "MSG computed zernikes are NaN",
+    }
+    if n in messages:
+        print(messages[n])
+    else:
+        print("MSG unknown error")
 
 def main(coords):
 
