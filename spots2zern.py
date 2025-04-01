@@ -3,6 +3,16 @@ import numpy as np
 from reconstruction import ZernikeReconstructor
 from config import *
 
+import matplotlib.pyplot as plt
+
+# x1 x2 ... y1 y2 ...
+cal_x = np.array([130.73, 138.72, 126.03, 132.68])
+cal_y = np.array([135.50, 129.99, 127.62, 121.91])
+cal_x -= cal_x.mean()
+cal_y -= cal_y.mean()
+
+CAL_SLOPES = np.array( cal_x.tolist() + cal_y.tolist() )
+
 
 def print_coeffs(a_z):
     """Prints Zernike coefficients.
@@ -39,9 +49,15 @@ def main(coords):
     recon = ZernikeReconstructor()
     a_z = np.zeros(N_MODES)
 
-    # Reformat from [x1, y1, ... xn, yn] to [x1, ..., xn, y1, ..., yn]
-    slopes = np.array([coords[::2], coords[1::2]]).flatten()
+    # Subtract off the mean
+    xmean = np.mean(coords[::2])
+    ymean = np.mean(coords[1::2])
+    pointsx = np.array(coords[::2]) - xmean
+    pointsy = np.array(coords[1::2]) - ymean
 
+    # Reformat from [x1, y1, ... xn, yn] to [x1, ..., xn, y1, ..., yn]
+    slopes = np.array( pointsx.tolist() + pointsy.tolist() ) - CAL_SLOPES
+    
     if len(slopes) != N_SPOTS * 2:
         print_return_code(3)  # N_SPOTS doesn't match number of poitns
         print_coeffs(a_z)
@@ -70,10 +86,9 @@ if __name__ == "__main__":
         print_coeffs(np.zeros(N_MODES))
         exit()
 
-    coords = np.array(args.coords)
-    if len(coords) != 8:
+    if len(args.coords) != 8:
         print_return_code(2)  # input does not contain 8 elements
         print_coeffs(np.zeros(N_MODES))
         exit()
 
-    main(coords)
+    main(args.coords)

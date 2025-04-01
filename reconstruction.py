@@ -366,10 +366,6 @@ class ZernikeReconstructor:
         """Creates Zernike to slopes matrix without piston.
         """
         A = np.zeros((2*cls.n_spots, cls.n_modes))
-        # Apply rotation by rotating the spot positions - I think this is wrong...
-        #rot_matrix = np.array([ [np.cos(cls.rot), -np.sin(cls.rot)],
-        #                        [np.sin(cls.rot),  np.cos(cls.rot)] ])
-        #points = np.dot(rot_matrix, cls.spot_positions.T).T
         points = cls.spot_positions
 
         for k in range(cls.n_modes):
@@ -381,7 +377,7 @@ class ZernikeReconstructor:
         return A
     
     @staticmethod
-    def invert_imat( A):
+    def invert_imat(A):
         """Creates slopes to Zernike matrix from imat.
         """
         A_inv = np.linalg.pinv(A)
@@ -396,7 +392,7 @@ class ZernikeReconstructor:
         # Initialize zernike to slopes matrix
         self.norm = self.make_norm_coeffs()
         self.A = self.make_imat(self.norm)
-        self.z2s = self.invert_imat(self.A)
+        self.s2z = self.invert_imat(self.A)
 
     def update_slopes(self, slopes):
         """Updates slope data.
@@ -410,7 +406,7 @@ class ZernikeReconstructor:
             warnings.warn("No slope data. Returning zeros.")
             return np.zeros(self.n_modes)
         
-        return np.dot(self.z2s, self.slopes)
+        return np.dot(self.s2z, self.slopes)
 
 def main(Npts, Nmodes):
     """Saves a FITS file with the x and y slopes for each Zernike mode.
@@ -428,6 +424,7 @@ def main(Npts, Nmodes):
     
     hdu = fits.PrimaryHDU(np.concatenate((slopesx, slopesy), axis=2))
     hdu.writeto("data/slopesXandY.fits", overwrite=True)
+
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description="Zernike slope offset generation")
