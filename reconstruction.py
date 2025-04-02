@@ -218,10 +218,9 @@ def generate_zernike_wavefront_cartesian(a_j, pts):
     return wfe
 
 def make_gamma_matrices(n_modes):
-    """
-    The derivative of a Zernike polynomial can be expressed as a linear combination
-    of Zernikes. Use the matrices gammax and gammay to store the coefficients
-    of the linear combination.
+    """ The derivative of a Zernike polynomial can be expressed as a linear
+    combination of Zernikes. Use the matrices gammax and gammay to store the
+    coefficients of the linear combination.
 
     References: Noll (1975)
     """
@@ -325,7 +324,7 @@ def make_southwell_points(Npts):
     subap_size = 2 / Npts
     xpts = np.arange(-1 + subap_size/2, 1, subap_size)
     ypts = np.arange(-1 + subap_size/2, 1, subap_size)
-    x, y = np.meshgrid(xpts, ypts, indexing="ij")
+    x, y = np.meshgrid(xpts, ypts, indexing="xy")
     return np.column_stack([x.ravel(), y.ravel()])
 
 class ZernikeReconstructor:
@@ -409,20 +408,21 @@ class ZernikeReconstructor:
         return np.dot(self.s2z, self.slopes)
 
 def main(Npts, Nmodes):
-    """Saves a FITS file with the x and y slopes for each Zernike mode.
+    """Saves a FITS file with the x and y slopes for each Zernike mode. Piston
+    is not included.
     """
-    gammax, gammay = make_gamma_matrices(Nmodes)
+    gammax, gammay = make_gamma_matrices(Nmodes + 1) # skip piston
     points = make_southwell_points(Npts)
 
     # Compute derivatives for each subaperture
     slopesx = np.zeros((Nmodes, Npts, Npts))
     slopesy = np.zeros((Nmodes, Npts, Npts))
     for i in range(Nmodes):
-        dervx, dervy = zernike_derv(i+1, gammax, gammay, points)
+        dervx, dervy = zernike_derv(i+2, gammax, gammay, points)
         slopesx[i] = np.reshape(dervx, (Npts, Npts))
         slopesy[i] = np.reshape(dervy, (Npts, Npts))
     
-    hdu = fits.PrimaryHDU(np.concatenate((slopesx, slopesy), axis=2))
+    hdu = fits.PrimaryHDU(np.concatenate((slopesx, slopesy), axis=1))
     hdu.writeto("data/slopesXandY.fits", overwrite=True)
 
 
