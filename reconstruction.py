@@ -214,7 +214,7 @@ def generate_zernike_wavefront_cartesian(a_j, pts):
     wfe = generate_zernike_wavefront(a_j, points_polar)
 
     # mask out everything outside of the aperture
-    wfe = np.where(xx**2 + yy**2 > 1, 0, wfe)
+    wfe = np.where(xx**2 + yy**2 > 1.1, 0, wfe)
     return wfe
 
 def make_gamma_matrices(n_modes):
@@ -419,6 +419,7 @@ def main(Npts, Nmodes):
     slopesy = np.zeros((Nmodes, Npts, Npts))
     for i in range(Nmodes):
         dervx, dervy = zernike_derv(i+2, gammax, gammay, points)
+        #dervy *= -1
         slopesx[i] = np.reshape(dervx, (Npts, Npts))
         slopesy[i] = np.reshape(dervy, (Npts, Npts))
     

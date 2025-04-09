@@ -38,5 +38,5 @@ def _make_spot_positions(rot):
 SPOT_POSITIONS = _make_spot_positions(ROTATION_ANGLE)
 
 # Server setup
-HOST = '0.0.0.0'     # Listen on all available interfaces
-DEFAULT_PORT = 8000  # Port number
+HOST = '0.0.0.0'      # Listen on all available interfaces
+DEFAULT_PORT = 10488  # Port number
