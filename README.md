@@ -22,6 +22,10 @@ On linux you can send udp sample data via:
 
 # FELIX spot positions to Zernikes
 
+Setup:
+
+    ssh -R 10488:localhost:10488 felix@felix-spare
+
 Run the script:
 
     python felix_zernikes.py

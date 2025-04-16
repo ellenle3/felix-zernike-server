@@ -11,15 +11,17 @@ from config import *
 
 def process_command(command):
     # Define regex to match the command format: points [timestamp] [X1,Y1,X2,Y2,...X10,Y10]
-    pattern = r"^felixdata\s+([0-9.,\s\-]+)$"
+    #r"^points\s+\[(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\]\s+\[([0-9.,\s\-]+)\]$"
+    pattern = r"^felixdata\s+([0-9]+)\s+([0-9.,\s\-]+)$"
     match = re.match(pattern, command.strip())
 
     if not match:
         return "Invalid command format!"
 
     # Extract the timestamp and the comma-separated values
-    values_str = match.group(1)  # The second capture group is the values
-
+    timestamp = int( match.group(1) )
+    values_str = match.group(2)
+    
     try:
         # Split the values and convert them to float
         values = [float(v) for v in values_str.split(',')]
@@ -38,7 +40,7 @@ def process_command(command):
     for i in range(4):
         print(f"Pair {i + 1}: X = {X_values[i]}, Y = {Y_values[i]}")
 
-    return X_values, Y_values
+    return timestamp, X_values, Y_values
 
 
 def start_server_tcp(port):
@@ -65,9 +67,9 @@ def start_server_tcp(port):
                 result = process_command(data)
 
                 if isinstance(result, tuple):       
-                    X_values, Y_values = result
+                    timestamp, X_values, Y_values = result
                     response = f"\nX values: {X_values}\nY values: {Y_values}"
-                    return X_values, Y_values
+                    return timestamp, X_values, Y_values
                 else:
                     response = result
 
@@ -94,9 +96,9 @@ def start_server_udp(port):
             result = process_command(data)
 
             if isinstance(result, tuple):
-                X_values, Y_values = result
+                timestamp, X_values, Y_values = result
                 response = f"X values: {X_values}\nY values: {Y_values}"
-                return X_values, Y_values
+                return timestamp, X_values, Y_values
             else:
                 response = result  # This will be the error message
 
@@ -166,7 +168,7 @@ def print_color(s: str, c: str) -> None:
 def main(protocol, port):
 
     while True:
-        X_values, Y_values = start_server_tcp(port)
+        timestamp, X_values, Y_values = start_server_tcp(port)
 
     zernike_names = ["Tip", "Tilt", "Focus", "Astig1", "Astig2", "Coma1", "Coma2",
                       "Trefoil1", "Trefoil2", "Spherical"]
@@ -178,9 +180,9 @@ def main(protocol, port):
 
         # Start the server to listen for FELIX data
         if protocol == 'tcp':
-            X_values, Y_values = start_server_tcp(port)
+            timestamp, X_values, Y_values = start_server_tcp(port)
         elif protocol == 'udp':
-            X_values, Y_values = start_server_udp(port)
+            timestamp, X_values, Y_values = start_server_udp(port)
         else:
             raise ValueError(f"Invalid protocol: {protocol}")
 
