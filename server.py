@@ -46,6 +46,7 @@ def process_command(command):
 def start_server_tcp(port):
     # Create a TCP/IP socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind((HOST, port))
         s.listen()
 
@@ -58,29 +59,29 @@ def start_server_tcp(port):
                 print(f"Connected by {addr}")
                 data = conn.recv(1024).decode()  # Receive and decode the incoming data
 
-                if not data:
-                    break
+            if not data:
+                break
+            print(f"Received command: {data}")
 
-                print(f"Received command: {data}")
+            # Process the received command
+            result = process_command(data)
 
-                # Process the received command
-                result = process_command(data)
+            if isinstance(result, tuple):       
+                timestamp, X_values, Y_values = result
+                response = f"\nX values: {X_values}\nY values: {Y_values}"
+                return timestamp, X_values, Y_values
+            else:
+                response = result
 
-                if isinstance(result, tuple):       
-                    timestamp, X_values, Y_values = result
-                    response = f"\nX values: {X_values}\nY values: {Y_values}"
-                    return timestamp, X_values, Y_values
-                else:
-                    response = result
-
-                print(response)
-                # Send back the response
-                conn.sendall(response.encode())
+            print(response)
+            # Send back the response
+            #conn.sendall(response.encode())
 
 
 def start_server_udp(port):
     # Create a UDP/IP socket
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind((HOST, port))
 
         print(f"UDP server listening on {HOST}:{port}")
