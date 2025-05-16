@@ -6,9 +6,12 @@ from datetime import datetime, timezone
 
 def main(fn_in, fn_out):
     
-    data = np.loadtxt(fn_in).T
-    timestamps = data[0]
-    slopes = data[1:].T
+    data = np.genfromtxt(fn_in).T
+    timestamps = data[1]
+    slopes = data[2:].T
+
+    timestamps = timestamps.astype(np.float64)
+    slopes = slopes.astype(np.float64)
 
     # Create UTC timestamps of starting and ending times YYYYMMDDTHH:MM:SS+00:00
     t_start = timestamps[0]
