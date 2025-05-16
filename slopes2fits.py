@@ -5,13 +5,19 @@ from datetime import datetime, timezone
 
 
 def main(fn_in, fn_out):
-    
-    data = np.genfromtxt(fn_in).T
-    timestamps = data[1]
-    slopes = data[2:].T
 
-    timestamps = timestamps.astype(np.float64)
-    slopes = slopes.astype(np.float64)
+    timestamps = []
+    slopes = []
+
+    with open(fn_in, 'r') as file:
+        for line in file:
+            line = line.strip()
+            args = line.split(' ')
+            timestamps.append(float(args[1]))
+            slopes.append([float(x[:-1]) for x in args[2:]])
+
+    timestamps = np.array(timestamps)
+    slopes = np.array(slopes)
 
     # Create UTC timestamps of starting and ending times YYYYMMDDTHH:MM:SS+00:00
     t_start = timestamps[0]
