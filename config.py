@@ -1,9 +1,10 @@
 # Wavefront reconstruction parameters
 N_SPOTS = 4         # Number of spots not including the center spot
 N_MODES = 7         # Number of Zernike polynomials not including piston
-ROTATION_ANGLE = 45  # Rotation angle in degrees
+ROTATION_ANGLE = 45 # Rotation angle in degrees
 SCALE = 1           # Scale factor
 FLIP = 1            # Set to -1 to flip sign of Zernike
+IMAT_FNAME = "data/imat.npy"  # File name for the imat matrix
 
 # (x, y) coordinates of spot positions mapped on the pupil (slope sampling points).
 # Radius of pupil is 1.

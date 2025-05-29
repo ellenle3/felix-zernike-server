@@ -327,6 +327,37 @@ def make_southwell_points(Npts):
     x, y = np.meshgrid(xpts, ypts, indexing="xy")
     return np.column_stack([x.ravel(), y.ravel()])
 
+def make_theoretical_imat(points, n_spots, n_modes, scale, flip, fname="imat.npy"):
+    """Creates Zernike to slopes matrix without piston.
+    """
+    # Create normalization coefficients
+    norm = np.ones(n_modes)
+    norm *= scale
+
+    # Flip sign of all indices with negative azimuthal frequency
+    for k in range(n_modes):
+        m, n = noll_zernike_index(k + 2)
+        if m < 0:
+            norm[k] *= flip
+
+    # Derivative matrices, plus 1 to skip piston
+    gammax, gammay = make_gamma_matrices(n_modes + 1)
+
+    A = np.zeros((2*n_spots, n_modes))
+
+    for k in range(n_modes):
+        # Noll index would usually be k + 1... Skip piston, so k + 2.
+        dervx, dervy = zernike_derv(k+2, gammax, gammay, points)
+        for i in range(n_spots):
+            A[i,k] = norm[k] * dervx[i]
+            A[i+n_spots,k] = norm[k] * dervy[i]
+    
+    with open(f"{fname}", "wb") as f:
+        np.save(f, A)
+
+    print(f"Saved imat to: {fname}")
+    return A
+
 class ZernikeReconstructor:
     """Modal wavefront reconstruction for a Shack-Hartmann wavefront sensor with
     a Zernike basis. The solution is based on Southwell (1980) with the geometry
@@ -337,50 +368,18 @@ class ZernikeReconstructor:
     rot = np.radians(ROTATION_ANGLE)
     scale = SCALE         # Scale factor
     flip = FLIP           # Set to -1 to flip sign of Zernike
-
-    # Derivative matrices, plus 1 to skip piston
-    gammax, gammay = make_gamma_matrices(n_modes + 1)
+    imat_fname = IMAT_FNAME  # File name for the imat
 
     # Spot positions on the pupil
     spot_positions = np.array(SPOT_POSITIONS)
 
     @classmethod
-    def make_norm_coeffs(cls):
-        """Creates normalization coefficients for Noll Zernike polynomials without
-        piston.
+    def import_imat(cls, fname):
+        """Loads a Zernike to slopes matrix from a npy binary file.
         """
-        norm = np.ones(cls.n_modes)
-        norm *= cls.scale
-
-        # Flip sign of all indices with negative azimuthal frequency
-        for k in range(N_MODES):
-            m, n = noll_zernike_index(k + 2)
-            if m < 0:
-                norm[k] *= cls.flip
-
-        return norm
-
-    @classmethod
-    def make_imat(cls, norm):
-        """Creates Zernike to slopes matrix without piston.
-        """
-        A = np.zeros((2*cls.n_spots, cls.n_modes))
-        points = cls.spot_positions
-
-        for k in range(cls.n_modes):
-            # Noll index would usually be k + 1... Skip piston, so k + 2.
-            dervx, dervy = zernike_derv(k+2, cls.gammax, cls.gammay, points)
-            for i in range(cls.n_spots):
-                A[i,k] = norm[k] * dervx[i]
-                A[i+cls.n_spots,k] = norm[k] * dervy[i]
+        with open(fname, "rb") as f:
+            A = np.load(f)
         return A
-    
-    @staticmethod
-    def invert_imat(A):
-        """Creates slopes to Zernike matrix from imat.
-        """
-        A_inv = np.linalg.pinv(A)
-        return A_inv
 
     def __init__(self):
         """Initializes the ZernikeReconstructor object. Define FELIX parameters
@@ -389,9 +388,8 @@ class ZernikeReconstructor:
         self.slopes = None
 
         # Initialize zernike to slopes matrix
-        self.norm = self.make_norm_coeffs()
-        self.A = self.make_imat(self.norm)
-        self.s2z = self.invert_imat(self.A)
+        self.A = self.import_imat(self.imat_fname)
+        self.s2z = np.linalg.pinv(self.A)
 
     def update_slopes(self, slopes):
         """Updates slope data.
@@ -407,7 +405,7 @@ class ZernikeReconstructor:
         
         return np.dot(self.s2z, self.slopes)
 
-def main(Npts, Nmodes):
+def make_slope_offsets(Npts, Nmodes):
     """Saves a FITS file with the x and y slopes for each Zernike mode. Piston
     is not included.
     """
@@ -428,9 +426,16 @@ def main(Npts, Nmodes):
 
 
 if __name__=='__main__':
+
     parser = argparse.ArgumentParser(description="Zernike slope offset generation")
-    parser.add_argument('--Npts', type=int, default=12, help="Number of points to sample along one direction")
+    parser.add_argument("--mode", type=str, default="slopes", choices=["imat", "slopes"],
+                        help="Mode of operation: 'imat' to generate theoretical imat, 'slopes' to generate slope offsets")
+    parser.add_argument('--Npts', type=int, default=12, help="Number of points to sample along one axis")
     parser.add_argument('--Nmodes', type=int, default=36, help="Number of Zernike modes")
 
     args = parser.parse_args()
-    main(args.Npts, args.Nmodes)
+
+    if args.mode == "imat":
+        make_theoretical_imat(np.array(SPOT_POSITIONS), N_SPOTS, N_MODES, SCALE, FLIP, fname=IMAT_FNAME)
+    elif args.mode == "slopes":
+        make_slope_offsets(args.Npts, args.Nmodes)
