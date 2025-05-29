@@ -358,53 +358,6 @@ def make_theoretical_imat(points, n_spots, n_modes, scale, flip, fname="imat.npy
     print(f"Saved imat to: {fname}")
     return A
 
-class ZernikeReconstructor:
-    """Modal wavefront reconstruction for a Shack-Hartmann wavefront sensor with
-    a Zernike basis. The solution is based on Southwell (1980) with the geometry
-    in Fig. 1A.
-    """
-    n_spots = N_SPOTS     # Number of spots not including the center spot
-    n_modes = N_MODES     # Number of Zernike polynomials not including piston
-    rot = np.radians(ROTATION_ANGLE)
-    scale = SCALE         # Scale factor
-    flip = FLIP           # Set to -1 to flip sign of Zernike
-    imat_fname = IMAT_FNAME  # File name for the imat
-
-    # Spot positions on the pupil
-    spot_positions = np.array(SPOT_POSITIONS)
-
-    @classmethod
-    def import_imat(cls, fname):
-        """Loads a Zernike to slopes matrix from a npy binary file.
-        """
-        with open(fname, "rb") as f:
-            A = np.load(f)
-        return A
-
-    def __init__(self):
-        """Initializes the ZernikeReconstructor object. Define FELIX parameters
-        in config.py.
-        """
-        self.slopes = None
-
-        # Initialize zernike to slopes matrix
-        self.A = self.import_imat(self.imat_fname)
-        self.s2z = np.linalg.pinv(self.A)
-
-    def update_slopes(self, slopes):
-        """Updates slope data.
-        """
-        self.slopes = slopes
-
-    def slopes_to_zernikes(self):
-        """Converts current slope data to Zernike coefficients.
-        """
-        if self.slopes is None:
-            warnings.warn("No slope data. Returning zeros.")
-            return np.zeros(self.n_modes)
-        
-        return np.dot(self.s2z, self.slopes)
-
 def make_slope_offsets(Npts, Nmodes):
     """Saves a FITS file with the x and y slopes for each Zernike mode. Piston
     is not included.

@@ -6,6 +6,9 @@ SCALE = 1           # Scale factor
 FLIP = 1            # Set to -1 to flip sign of Zernike
 IMAT_FNAME = "data/imat.npy"  # File name for the imat matrix
 
+# rough calibration points... can be changed later
+CAL_SLOPES = [130.73, 138.72, 126.03, 132.68, 135.50, 129.99, 127.62, 121.91]
+
 # (x, y) coordinates of spot positions mapped on the pupil (slope sampling points).
 # Radius of pupil is 1.
 # Note: There is a function in reconstruction.py called make_southwell_points()
