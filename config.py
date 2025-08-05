@@ -4,7 +4,7 @@ N_MODES = 7         # Number of Zernike polynomials not including piston
 ROTATION_ANGLE = 45 # Rotation angle in degrees
 SCALE = 1           # Scale factor
 FLIP = 1            # Set to -1 to flip sign of Zernike
-IMAT_FNAME = "data/imat.npy"  # File name for the imat matrix
+IMAT_FNAME = "/home/felix/src/spots2zern/data/imat.npy"  # File name for the imat matrix
 
 # rough calibration points... can be changed later
 CAL_SLOPES = [130.73, 138.72, 126.03, 132.68, 135.50, 129.99, 127.62, 121.91]
