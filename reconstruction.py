@@ -344,6 +344,7 @@ def make_theoretical_imat(points, n_spots, n_modes, scale, flip, fname="imat.npy
     gammax, gammay = make_gamma_matrices(n_modes + 1)
 
     A = np.zeros((2*n_spots, n_modes))
+    print(points)
 
     for k in range(n_modes):
         # Noll index would usually be k + 1... Skip piston, so k + 2.
